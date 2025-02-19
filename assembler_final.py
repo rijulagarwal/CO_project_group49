@@ -515,7 +515,6 @@ with open (input_file,'r') as file:
             fp.write("\n")
     elif error==1:
          fp.write(f'Typo/Syntax Error found in line number {final_output[0]}')
-    print(twos_complement(-8,21))
 
 
 
