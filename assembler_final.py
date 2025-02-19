@@ -85,8 +85,9 @@ with open (input_file,'r') as file:
     line_number=0
     error=0
     skipped=[]
-    if read[-1]!='beq zero,zero,0':
-         error=1
+    virtual_hault=['beq zero,zero,0','beq zero,zero,0 ','beq zero,zero,0 \n','beq zero,zero,0\n']
+    if read[-1] not in virtual_hault:
+         error=2
          fp.write("Error:Virtual Hault is not the last instruction")
     for line in read:
         if error==1:
@@ -106,8 +107,14 @@ with open (input_file,'r') as file:
                 instruction=line.split()[1]
                 registers=line.split()[2].split(',')
         elif len(line.split())==2:
-            instruction=line.split()[0]
-            registers=line.split()[1].split(",")
+            if len(line.split()[0].split(":"))==2:
+                 label=line.split()[0].split(":")[0]
+                 labels[label]=line_number
+                 instruction=line.split()[0].split(":")[1]
+                 registers=line.split()[1].split(",")
+            else:
+                instruction=line.split()[0]
+                registers=line.split()[1].split(",")
         else:
              error=1
              final_output[0]=line_number
@@ -266,7 +273,7 @@ with open (input_file,'r') as file:
             output+=immediate[:7]
             if data_register not in register_encoding:
                  error=1
-                 final_output[0]=line_number
+                 final_output[0]=line_number 
                  break
             if source_address_register not in register_encoding:
                  error=1
@@ -306,8 +313,12 @@ with open (input_file,'r') as file:
                 instruction=line.split()[1]
                 registers=line.split()[2].split(',')
          elif len(line.split())==2:
-            instruction=line.split()[0]
-            registers=line.split()[1].split(",")
+            if len(line.split()[0].split(":"))==2:
+                 instruction=line.split()[0].split(":")[1]
+                 registers=line.split()[1].split(",")
+            else:
+                instruction=line.split()[0]
+                registers=line.split()[1].split(",")
          else:
              error=1
              final_output[0]=line_number
