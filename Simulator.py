@@ -88,3 +88,71 @@ def function(bin):
         iset["rs1"]=bin[12:17]
         iset["rs2"]=bin[7:12]
         iset[""]
+
+def function(bin):
+    if len(bin)!=32:
+        raise  ValueError("Assembly COde must be 32 bits long")
+        
+    opcode=bin[25:32]
+    iset={}
+    iset["opcode"]=opcode
+    if opcode=="0110011":
+        iset["Instruction"]="R"
+        iset["rd"]=bin[20:25]
+        iset["rs1"]=bin[12:17]
+        iset["rs2"]=bin[7:12]
+        iset["func7"]=bin[0:7]
+        iset["func3"]=bin[17:20]
+        if iset['func7']=="0000000" and iset["func3"]=="000":
+            iset["sub_type"]="add"
+        elif iset['func7']=="0100000" and iset["func3"]=="000":
+            iset["sub_type"]="sub"
+        elif iset['func7']=="0000000" and iset["func3"]=="010":
+            iset["sub_type"]="slt"
+        elif iset['func7']=="0000000" and iset["func3"]=="101":
+            iset["sub_type"]="srl"
+        elif iset['func7']=="0000000" and iset["func3"]=="110":
+            iset["sub_type"]="or"
+        elif iset['func7']=="0000000" and iset["func3"]=="111":
+            iset["sub_type"]="and"
+    
+    elif opcode in ["0000011","0010011","1100111"]:
+        iset["Instruction"]="I"
+        iset["imm"]=bin[0:12]
+        iset["rs1"]=bin[12:17]
+        iset["func3"]=bin[17:20]
+        iset["rd"]=bin[20:25]
+        if opcode=="0000011" and iset["func3"]=="010":
+            iset["sub_type"]="lw"
+        elif opcode=="0010011" and iset["func3"]=='000':
+            iset["sub_type"]="addi"
+        elif opcode=="1100111" and iset["func3"]=='000':
+            iset["sub_type"]="jalr"
+
+    elif opcode=="0100011":
+        iset["Instruction"]="S"
+        iset["rs1"]=bin[12:17]
+        iset["rs2"]=bin[7:12]
+        iset["imm"]=bin[0:7]+bin[20:25]
+        iset["sub_type"]="sw"
+        iset['func3']=bin[17:20]
+    
+    elif opcode=="1100011":
+        iset["Instruction"]="B"
+        iset["func3"]=bin[17:20]
+        iset["rs1"]=bin[12:17]
+        iset["rs2"]=bin[7:12]
+        iset["imm"]=bin[0]+bin[24]+bin[1:7]+bin[20:24]+"0"
+        if iset["func3"]=="000":
+            iset["sub_type"]="beq"
+        elif iset["func3"]=="001":
+            iset["sub_type"]="bne"
+        elif iset["func3"]=="100":
+            iset["sub_type"]='blt'
+    
+    elif opcode=="1101111":
+        iset["Instruction"]="J"
+        iset["sub_type"]="jal"
+        iset['rd']=bin[20:25]
+        iset["imm"]=bin[0]+bin[12:20]+bin[11]+bin[1:11]+"0"
+    return iset
