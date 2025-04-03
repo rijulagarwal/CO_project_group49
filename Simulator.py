@@ -328,14 +328,15 @@ while True:
         output+=("\n")
         break
     elif current_instruction=="00001111000011110000111100001111": #RST
-        #output+=("0b"+twos_complement(PC,32)+" ")
+        output+=("0b"+twos_complement(PC,32)+" ")
         for i in registers:
             if i!="x2":
                 registers[i]=0
             else:
                 registers[i]=380
-            #output+=("0b"+twos_complement(registers[i],32)+' ')
-        #output+=("\n")
+            output+=("0b"+twos_complement(registers[i],32)+' ')
+        output+=("\n")
+        continue
     instruction_set = function(current_instruction)
     #print(instruction_set)
     #print(instruction_set["opcode"])
