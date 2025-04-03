@@ -1,8 +1,8 @@
-# import sys
-# import os
+import sys
+import os
 
-# input_file = sys.argv[1]
-# output_file = sys.argv[2]
+input_file = sys.argv[1]
+output_file = sys.argv[2]
 
 def twos_complement(value: int, bit_width: int) -> str:
     if value < 0:
@@ -273,7 +273,7 @@ def function(bin):
     read = file.readlines()'''
 
 file = open(input_file,"r")
-fp = open("lodu.txt","w")
+fp = open(output_file,"w")
 read = file.readlines()
 #  read = ["00000000000100000000000010010011",
 # "00000000100000000000111000010011",
