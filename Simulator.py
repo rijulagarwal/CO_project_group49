@@ -328,6 +328,7 @@ while True:
         output+=("\n")
         break
     elif current_instruction=="00001111000011110000111100001111": #RST
+        PC+=4
         output+=("0b"+twos_complement(PC,32)+" ")
         for i in registers:
             if i!="x2":
