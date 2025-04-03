@@ -1,21 +1,21 @@
 import sys
 import os
 
-if len(sys.argv) != 3:
-    print("Format: python3 Assembler.py <input_assembly_file> <output_machine_code_file>")
-    sys.exit(1)
+# if len(sys.argv) != 3:
+#     print("Format: python3 Assembler.py <input_assembly_file> <output_machine_code_file>")
+#     sys.exit(1)
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
 
-if input_file[1:3] == ":\\":
-    input_file = input_file.replace("\\", "/").replace("C:/", "/mnt/c/")
-if output_file[1:3] == ":\\":
-    output_file = output_file.replace("\\", "/").replace("C:/", "/mnt/c/")
+# if input_file[1:3] == ":\\":
+#     input_file = input_file.replace("\\", "/").replace("C:/", "/mnt/c/")
+# if output_file[1:3] == ":\\":
+#     output_file = output_file.replace("\\", "/").replace("C:/", "/mnt/c/")
 
-if not os.path.exists(input_file):
-    print(f"Error: Input file '{input_file}' not found!")
-    sys.exit(1)
+# if not os.path.exists(input_file):
+#     print(f"Error: Input file '{input_file}' not found!")
+#     sys.exit(1)
     
 def twos_complement(value: int, bit_width: int) -> str:
     if value < 0:
@@ -80,15 +80,24 @@ register_encoding = {
 with open (input_file,'r') as file:
     fp = open (output_file,"w")
     read = file.readlines()
+    #print(read)
     final_output=[-1]*1000000
     labels={}
     line_number=0
     error=0
     skipped=[]
-    virtual_hault=['beq zero,zero,0','beq zero,zero,0 ','beq zero,zero,0 \n','beq zero,zero,0\n']
-    if read[-1] not in virtual_hault:
-         error=2
-         fp.write("Error:Virtual Hault is not the last instruction")
+    virtual_hault=['beq zero,zero,0','beq zero,zero,0 ','beq zero,zero,0 \n','beq zero,zero,0\n','halt: beq zero,zero,0','halt: beq zero,zero,0\n','halt: beq zero,zero,0 \n']
+    j=read[-1].split(":")
+    k=[x.strip() for x in j]
+    if len(k)==2:
+         if k[1] not in virtual_hault:
+              error=2
+              fp.write('Virtual Halt is not the last instruction')
+    elif len(k)==1:
+         if k not in virtual_hault:
+              error=2
+              fp.write("Virtual Halt is not the last instruction")
+    
     for line in read:
         if error==1:
              break
@@ -115,6 +124,17 @@ with open (input_file,'r') as file:
             else:
                 instruction=line.split()[0]
                 registers=line.split()[1].split(",")
+        elif len(line.strip().split(":"))==1:
+             if line.strip().split()[0].lower()=="halt":
+                  final_output[line_number]="11100011100011100000111000111000" #halt
+             elif line.strip().split()[0].lower()=="rst":
+                  final_output[line_number]="00001111000011110000111100001111" #rst 
+        elif len(line.strip().split(":"))==2:
+             j=[x.strip() for x in line.strip().split(":")]
+             if j[1].lower().strip()=="halt":
+                final_output[line_number]="11100011100011100000111000111000" #halt
+             elif j[1].lower().strip()=="rst":
+                final_output[line_number]="00001111000011110000111100001111" #rst
         else:
              error=1
              final_output[0]=line_number
