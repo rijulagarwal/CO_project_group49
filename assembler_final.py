@@ -86,7 +86,7 @@ with open (input_file,'r') as file:
     line_number=0
     error=0
     skipped=[]
-    virtual_hault=['beq zero,zero,0','beq zero,zero,0 ','beq zero,zero,0 \n','beq zero,zero,0\n','halt: beq zero,zero,0','halt: beq zero,zero,0\n','halt: beq zero,zero,0 \n']
+    virtual_hault=['beq zero,zero,0','beq zero,zero,0 ','beq zero,zero,0 \n','beq zero,zero,0\n','halt: beq zero,zero,0','halt: beq zero,zero,0\n','halt: beq zero,zero,0 \n','beqzero,zero,0','beqzero,zero,0\n']
     j=read[-1].split(":")
     k=[x.strip() for x in j]
     if len(k)==2:
@@ -94,7 +94,8 @@ with open (input_file,'r') as file:
               error=2
               fp.write('Virtual Halt is not the last instruction')
     elif len(k)==1:
-         if k not in virtual_hault:
+         if k[0] not in virtual_hault:
+              print(k)
               error=2
               fp.write("Virtual Halt is not the last instruction")
     
@@ -120,21 +121,35 @@ with open (input_file,'r') as file:
                  label=line.split()[0].split(":")[0]
                  labels[label]=line_number
                  instruction=line.split()[0].split(":")[1]
-                 registers=line.split()[1].split(",")
+                 j=[x.strip() for x in line.strip().split(":")]
+                 if j[1].lower().strip()=="halt":
+                    final_output[line_number]="11100011100011100000111000111000" #halt
+                    continue
+                 elif j[1].lower().strip()=="rst":
+                    final_output[line_number]="00001111000011110000111100001111" #rst
+                    continue
+                 else:
+                      registers=line.split()[1].split(",")
             else:
                 instruction=line.split()[0]
                 registers=line.split()[1].split(",")
         elif len(line.strip().split(":"))==1:
              if line.strip().split()[0].lower()=="halt":
                   final_output[line_number]="11100011100011100000111000111000" #halt
+                  continue
              elif line.strip().split()[0].lower()=="rst":
                   final_output[line_number]="00001111000011110000111100001111" #rst 
+                  continue
         elif len(line.strip().split(":"))==2:
+             label=line.split()[0].split(":")[0]
+             labels[label]=line_number
              j=[x.strip() for x in line.strip().split(":")]
              if j[1].lower().strip()=="halt":
                 final_output[line_number]="11100011100011100000111000111000" #halt
+                continue
              elif j[1].lower().strip()=="rst":
                 final_output[line_number]="00001111000011110000111100001111" #rst
+                continue
         else:
              error=1
              final_output[0]=line_number
@@ -335,10 +350,35 @@ with open (input_file,'r') as file:
          elif len(line.split())==2:
             if len(line.split()[0].split(":"))==2:
                  instruction=line.split()[0].split(":")[1]
-                 registers=line.split()[1].split(",")
+                 j=[x.strip() for x in line.strip().split(":")]
+                 if j[1].lower().strip()=="halt":
+                    final_output[line_number]="11100011100011100000111000111000" #halt
+                    continue
+                 elif j[1].lower().strip()=="rst":
+                    final_output[line_number]="00001111000011110000111100001111" #rst
+                    continue
+                 else:
+                    registers=line.split()[1].split(",")
             else:
                 instruction=line.split()[0]
                 registers=line.split()[1].split(",")
+         elif len(line.strip().split(":"))==1:
+             if line.strip().split()[0].lower()=="halt":
+                  final_output[line_number]="11100011100011100000111000111000" #halt
+                  continue
+             elif line.strip().split()[0].lower()=="rst":
+                  final_output[line_number]="00001111000011110000111100001111" #rst 
+                  continue
+         elif len(line.strip().split(":"))==2:
+             label=line.split()[0].split(":")[0]
+             labels[label]=line_number
+             j=[x.strip() for x in line.strip().split(":")]
+             if j[1].lower().strip()=="halt":
+                final_output[line_number]="11100011100011100000111000111000" #halt
+                continue
+             elif j[1].lower().strip()=="rst":
+                final_output[line_number]="00001111000011110000111100001111" #rst
+                continue
          else:
              error=1
              final_output[0]=line_number
@@ -546,9 +586,6 @@ with open (input_file,'r') as file:
             fp.write("\n")
     elif error==1:
          fp.write(f'Typo/Syntax Error found in line number {final_output[0]}')
-
-
-
 
 
 
