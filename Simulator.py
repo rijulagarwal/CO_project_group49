@@ -1,8 +1,8 @@
-import sys
-import os
+# import sys
+# import os
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
+# input_file = sys.argv[1]
+# output_file = sys.argv[2]
 
 def twos_complement(value: int, bit_width: int) -> str:
     if value < 0:
@@ -272,10 +272,10 @@ def function(bin):
     fp = open (output_file,"w")
     read = file.readlines()'''
 
-file = open(input_file,"r")
-fp = open(output_file,"w")
-read = file.readlines()
-'''read = ["00000000000100000000000010010011",
+# file = open(input_file,"r")
+fp = open("lodu.txt","w")
+# read = file.readlines()
+read = ["00000000000100000000000010010011",
 "00000000100000000000111000010011",
 "00000000100011100000001011100111",
 "00000000001000000000000100010011",
@@ -290,8 +290,8 @@ read = file.readlines()
 "00000001110000010010000000100011",
 "00000000000000010010001000000011",
 "00000001110000010010001000100011",
-"00000000010000010010001000000011",
-"00000000000000000000000001100011"]'''
+"11100011100011100000111000111000",
+"00000000000000000000000001100011"]
 readnew=[]
 for i in read:
     if "\n" in i:
@@ -310,12 +310,27 @@ while True:
         break
     current_instruction = Program_Counter_Instruction_Mapping[PC]
     #print(current_instruction)
-    if current_instruction=="00000000000000000000000001100011":
+    if current_instruction=="00000000000000000000000001100011": #virtual halt
         fp.write("0b"+twos_complement(PC,32)+" ")
         for i in registers:
             fp.write("0b"+twos_complement(registers[i],32)+' ')
         fp.write("\n")
         break
+    elif current_instruction=="11100011100011100000111000111000": #halt
+        fp.write("0b"+twos_complement(PC,32)+" ")
+        for i in registers:
+            fp.write("0b"+twos_complement(registers[i],32)+' ')
+        fp.write("\n")
+        break
+    elif current_instruction=="00001111000011110000111100001111": #RST
+        fp.write("0b"+twos_complement(PC,32)+" ")
+        for i in registers:
+            if i!="x2":
+                registers[i]=0
+            else:
+                registers[i]=380
+            fp.write("0b"+twos_complement(registers[i],32)+' ')
+        fp.write("\n")
     instruction_set = function(current_instruction)
     #print(instruction_set)
     #print(instruction_set["opcode"])
