@@ -304,33 +304,38 @@ for i in range(len(readnew)):
 #print(Program_Counter_Instruction_Mapping)
 PC=0
 cnt=0
+output=""
+error=0
 while True:
     cnt+=1
-    if cnt==100:
+    if cnt==5000:
+        break
+    if PC not in Program_Counter_Instruction_Mapping:
+        error=1
         break
     current_instruction = Program_Counter_Instruction_Mapping[PC]
     #print(current_instruction)
     if current_instruction=="00000000000000000000000001100011": #virtual halt
-        fp.write("0b"+twos_complement(PC,32)+" ")
+        output+=("0b"+twos_complement(PC,32)+" ")
         for i in registers:
-            fp.write("0b"+twos_complement(registers[i],32)+' ')
-        fp.write("\n")
+            output+=("0b"+twos_complement(registers[i],32)+' ')
+        output+=("\n")
         break
     elif current_instruction=="11100011100011100000111000111000": #halt
-        fp.write("0b"+twos_complement(PC,32)+" ")
+        output+=("0b"+twos_complement(PC,32)+" ")
         for i in registers:
-            fp.write("0b"+twos_complement(registers[i],32)+' ')
-        fp.write("\n")
+            output+=("0b"+twos_complement(registers[i],32)+' ')
+        output+=("\n")
         break
     elif current_instruction=="00001111000011110000111100001111": #RST
-        fp.write("0b"+twos_complement(PC,32)+" ")
+        output+=("0b"+twos_complement(PC,32)+" ")
         for i in registers:
             if i!="x2":
                 registers[i]=0
             else:
                 registers[i]=380
-            fp.write("0b"+twos_complement(registers[i],32)+' ')
-        fp.write("\n")
+            output+=("0b"+twos_complement(registers[i],32)+' ')
+        output+=("\n")
     instruction_set = function(current_instruction)
     #print(instruction_set)
     #print(instruction_set["opcode"])
@@ -346,6 +351,15 @@ while True:
         rd = convert_bin_to_register(instruction_set["rd"])
         rs1 = convert_bin_to_register(instruction_set["rs1"])
         rs2 = convert_bin_to_register(instruction_set["rs2"])
+        if rd not in registers:
+            error=1
+            break
+        if rs1 not in registers:
+            error=1
+            break
+        if rs2 not in registers:
+            error=1
+            break
         if instruction=="add":
             registers[rd] = add(registers[rs1],registers[rs2])
         elif instruction=="sub":
@@ -361,11 +375,23 @@ while True:
     elif instruction_set["opcode"]=="0000011":
         rd = convert_bin_to_register(instruction_set["rd"])
         rs1 = convert_bin_to_register(instruction_set["rs1"])
+        if rd not in registers:
+            error=1
+            break
+        if rs1 not in registers:
+            error=1
+            break
         imm = signed_bin_to_int(instruction_set["imm"])
         registers[rd]= lw(imm,registers[rs1])
     elif instruction_set["opcode"]=="0010011":
         rd = convert_bin_to_register(instruction_set["rd"])
         rs1 = convert_bin_to_register(instruction_set["rs1"])
+        if rd not in registers:
+            error=1
+            break
+        if rs1 not in registers:
+            error=1
+            break
         imm = signed_bin_to_int(instruction_set["imm"])
         #print("this is registers[rd] before:", registers[rd])
         registers[rd]= addi(registers[rs1],imm)
@@ -373,6 +399,12 @@ while True:
     elif instruction=="jalr":
         rs1=convert_bin_to_register(instruction_set["rs1"])
         rd = convert_bin_to_register(instruction_set["rd"])
+        if rd not in registers:
+            error=1
+            break
+        if rs1 not in registers:
+            error=1
+            break
         imm = signed_bin_to_int(instruction_set["imm"])
         registers[rd]=jalr(registers[rs1],imm)
     elif instruction=="sw":
@@ -380,6 +412,12 @@ while True:
         imm = signed_bin_to_int(instruction_set["imm"])
         rs1 = convert_bin_to_register(instruction_set["rs1"])
         rs2 = convert_bin_to_register(instruction_set["rs2"])
+        if rs1 not in registers:
+            error=1
+            break
+        if rs2 not in registers:
+            error=1
+            break
         if sw(registers[rs1],imm) <=380:
             stack_memory_address_value["0x"+format(sw(registers[rs1],imm),"08X")]=registers[rs2]
         else:
@@ -398,15 +436,23 @@ while True:
         registers[rd]=jal(imm)
     PC+=4
     registers["x0"]=0
-    fp.write("0b"+twos_complement(PC,32)+" ")
+    output+=("0b"+twos_complement(PC,32)+" ")
     for i in registers:
-        fp.write("0b"+twos_complement(registers[i],32)+' ')
-    fp.write("\n")
+        output+=("0b"+twos_complement(registers[i],32)+' ')
+    output+=("\n")
     #print(registers," \n PC is ",PC)
 for i in data_memory_value_address:
     #print(type(i),i)
-    fp.write(i+":"+("0b"+twos_complement(data_memory_value_address[i],32)))
-    fp.write("\n")
+    output+=(i+":"+("0b"+twos_complement(data_memory_value_address[i],32)))
+    output+=("\n")
+if error==1:
+    fp.write("There is error in line"+str((PC+4)/4))
+   #print(PC)
+   #print(current_instruction)
+   #print(instruction_set)
+else:
+    fp.write(output)
+
 #print(registers)
 #print()
 #print(data_memory_value_address)
